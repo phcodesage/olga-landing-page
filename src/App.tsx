@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Heart, Star, Calendar, Download, ArrowRight, Mail, Phone, Instagram, Facebook, CheckCircle, X } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Heart, Star, Calendar, Download, ArrowRight, Mail, Phone, Instagram, Facebook, CheckCircle, X, Play } from 'lucide-react';
 
 function App() {
   const [showForm, setShowForm] = useState(false);
@@ -10,6 +10,15 @@ function App() {
     email: '',
     experience: ''
   });
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [videoStarted, setVideoStarted] = useState(false);
+  const handlePlayClick = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setVideoStarted(true);
+    }
+  };
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +35,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-green-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20">
+      <section className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20 min-h-screen flex flex-col justify-center">
         <div className="absolute inset-0 bg-white/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -58,18 +67,44 @@ function App() {
               </div>
             </div>
           </div>
-          
+        </div>
+      </section>
+
+      {/* Video + Intro Section */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20 min-h-screen flex flex-col justify-center">
+        <div className="absolute inset-0 bg-white/10"></div>
+        <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
           {/* Video Section */}
-          <div className="mt-16 text-center">
+          <div className="text-center">
             <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
               <h3 className="text-2xl font-semibold text-gray-800 mb-6">Watch Olga's Healing Message</h3>
-              <div className="bg-gray-200 h-64 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-rose-400 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <ArrowRight className="w-8 h-8 text-white" />
-                  </div>
-                  <p className="text-gray-600">Video placeholder - Ask Marie for Olga's healing video</p>
-                </div>
+              <div className="relative w-full overflow-hidden rounded-xl shadow-md">
+                {/* Video */}
+                <video
+                  ref={videoRef}
+                  className="w-full"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster="https://img.youtube.com/vi/Y_CDqJVr7Tk/hqdefault.jpg"
+                >
+                  <source src="/media/videos/THING THAT I WISH I WAS TOLD [Y_CDqJVr7Tk].mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+
+                {/* Overlay play button (shown until play) */}
+                {!videoStarted && (
+                  <button
+                    onClick={handlePlayClick}
+                    aria-label="Play video"
+                    className="absolute inset-0 grid place-items-center bg-gradient-to-r from-pink-50/80 via-orange-50/80 to-green-50/80 backdrop-blur-sm transition-opacity duration-300"
+                  >
+                    <span className="inline-flex items-center gap-3 bg-gradient-to-r from-rose-400 via-orange-400 to-green-400 text-white px-6 py-3 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105">
+                      <Play className="w-5 h-5" />
+                      <span className="font-semibold">Watch Video</span>
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -92,7 +127,7 @@ function App() {
       </section>
 
       {/* Three Core Offers */}
-      <section className="py-20 bg-white/50">
+      <section className="py-20 bg-white/50 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-16">
             Your Path to Healing & Transformation
@@ -170,7 +205,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-16">
+      <footer className="bg-gray-800 text-white py-16 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8 items-center">
             <div className="text-center md:text-left">
