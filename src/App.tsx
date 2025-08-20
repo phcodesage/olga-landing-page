@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Heart, Star, Calendar, Download, ArrowRight, Mail, Phone, Instagram, Facebook, CheckCircle, X, Play } from 'lucide-react';
+import { Heart, Star, Calendar, Download, Instagram, Facebook, CheckCircle, X, Play, Youtube, Linkedin } from 'lucide-react';
 
 function App() {
   const [showForm, setShowForm] = useState(false);
@@ -228,10 +228,21 @@ function App() {
             
             <div className="text-center md:text-right">
               <div className="flex justify-center md:justify-end space-x-4 mb-4">
-                <Mail className="w-6 h-6 text-rose-300 hover:text-rose-200 cursor-pointer transition-colors" />
-                <Phone className="w-6 h-6 text-rose-300 hover:text-rose-200 cursor-pointer transition-colors" />
-                <Instagram className="w-6 h-6 text-rose-300 hover:text-rose-200 cursor-pointer transition-colors" />
-                <Facebook className="w-6 h-6 text-rose-300 hover:text-rose-200 cursor-pointer transition-colors" />
+                <a href="https://www.youtube.com/@unbreakable-you-official" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-rose-300 hover:text-rose-200 transition-colors">
+                  <Youtube className="w-6 h-6" />
+                </a>
+                <a href="https://www.linkedin.com/in/olga-binyaminov-5b163b6/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-rose-300 hover:text-rose-200 transition-colors">
+                  <Linkedin className="w-6 h-6" />
+                </a>
+                <a href="https://www.tiktok.com/@exceedlearningcenter?_t=ZP-8yQvgIEYenH&_r=1" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-rose-300 hover:text-rose-200 transition-colors">
+                  <Play className="w-6 h-6" />
+                </a>
+                <a href="https://www.facebook.com/olganyc21?mibextid=wwXIfr&rdid=pWD9E3z4WcP4hvZX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Ccp93Bk95%2F%3Fmibextid%3DwwXIfr#" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-rose-300 hover:text-rose-200 transition-colors">
+                  <Facebook className="w-6 h-6" />
+                </a>
+                <a href="https://www.instagram.com/unbreakable_you_official/?igsh=YmswZmJvamhyc3g0&utm_source=qr#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-rose-300 hover:text-rose-200 transition-colors">
+                  <Instagram className="w-6 h-6" />
+                </a>
               </div>
               <p className="text-gray-300">Connect & Follow</p>
             </div>
