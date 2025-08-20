@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
-import { Heart, Star, Calendar, Download, Instagram, Facebook, CheckCircle, X, Play, Youtube, Linkedin } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Heart, Star, Calendar, Download, Instagram, Facebook, CheckCircle, X, Play, Youtube, Linkedin, Menu } from 'lucide-react';
 
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -12,13 +13,50 @@ function App() {
   });
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const videoWrapperRef = useRef<HTMLDivElement | null>(null);
   const [videoStarted, setVideoStarted] = useState(false);
   const handlePlayClick = () => {
     if (videoRef.current) {
+      // Only seek to 1s for the initial play; otherwise continue where paused
+      try {
+        if (videoRef.current.currentTime < 0.5) {
+          videoRef.current.currentTime = 1;
+        }
+      } catch {}
       videoRef.current.play();
       setVideoStarted(true);
     }
   };
+
+  const handleLoadedMetadata = () => {
+    // Ensure initial frame/time starts at 1s even with native controls
+    if (videoRef.current) {
+      try { videoRef.current.currentTime = 1; } catch {}
+      // Force captions visible by default
+      try {
+        const tracks = videoRef.current.textTracks;
+        if (tracks && tracks[0]) {
+          tracks[0].mode = 'showing';
+        }
+      } catch {}
+    }
+  };
+
+  // Pause when clicking anywhere outside the video wrapper
+  useEffect(() => {
+    const handleDocumentClick = (e: MouseEvent) => {
+      const wrapper = videoWrapperRef.current;
+      if (wrapper && !wrapper.contains(e.target as Node)) {
+        const el = videoRef.current;
+        if (el && !el.paused) {
+          try { el.pause(); } catch {}
+        }
+        setVideoStarted(false);
+      }
+    };
+    document.addEventListener('click', handleDocumentClick);
+    return () => document.removeEventListener('click', handleDocumentClick);
+  }, []);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,8 +72,49 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-green-50">
+      {/* Sticky Navbar */}
+      <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md border-b border-rose-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          {/* Brand */}
+          <a href="#hero" className="flex items-center gap-3">
+            <img src="/logo.png" alt="Logo" className="w-56 h-56 object-contain" />
+          </a>
+
+          {/* Desktop nav */}
+          <nav className="hidden md:flex items-center gap-8 text-gray-700">
+            <a href="#hero" className="hover:text-rose-500 transition-colors">Home</a>
+            <a href="#video" className="hover:text-rose-500 transition-colors">Video</a>
+            <a href="#offers" className="hover:text-rose-500 transition-colors">Programs</a>
+            <a href="#contact" className="hover:text-rose-500 transition-colors">Contact</a>
+            <button onClick={() => openForm('discovery')} className="ml-2 bg-rose-400 hover:bg-rose-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg">
+              Book Free Call
+            </button>
+          </nav>
+
+          {/* Mobile toggle */}
+          <button onClick={() => setNavOpen(!navOpen)} className="md:hidden p-2 rounded-lg bg-white/60 hover:bg-white/80 border border-rose-100" aria-label="Toggle menu">
+            {navOpen ? <X className="w-6 h-6 text-gray-700" /> : <Menu className="w-6 h-6 text-gray-700" />}
+          </button>
+        </div>
+
+        {/* Mobile menu */}
+        {navOpen && (
+          <div className="md:hidden border-t border-rose-100 bg-white/80 backdrop-blur">
+            <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3 text-gray-700">
+              <a href="#hero" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Home</a>
+              <a href="#video" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Video</a>
+              <a href="#offers" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Programs</a>
+              <a href="#contact" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Contact</a>
+              <button onClick={() => { setNavOpen(false); openForm('discovery'); }} className="mt-2 bg-rose-400 hover:bg-rose-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow">
+                Book Free Call
+              </button>
+            </div>
+          </div>
+        )}
+      </header>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20 min-h-screen flex flex-col justify-center">
+      <section id="hero" className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20 min-h-screen flex flex-col justify-center">
         <div className="absolute inset-0 bg-white/10"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -71,9 +150,24 @@ function App() {
       </section>
 
       {/* Video + Intro Section */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20 min-h-screen flex flex-col justify-center">
+      <section id="video" className="relative overflow-hidden bg-gradient-to-r from-pink-50 via-orange-50 to-green-50 py-20 min-h-screen flex flex-col justify-center">
         <div className="absolute inset-0 bg-white/10"></div>
         <div className="relative max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8">
+          {/* Intro Text */}
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                Feeling like your life is on pause after divorce? I know that feeling of being stuck, of a future that feels uncertain and a past that's too painful to revisit. But I also know what it's like to find your way forward.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                I'm Olga — and I guide women just like you through heartbreak, helping you rediscover your strength so you can build a life you're excited to wake up to.
+              </p>
+              <p className="text-lg text-gray-700 leading-relaxed">
+                Let's connect for a free 15-minute call. No pressure — just a conversation about where you are and how I can help you take your next step.
+              </p>
+            </div>
+          </div>
+
           {/* Video Section */}
           <div className="text-center">
             <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
@@ -86,7 +180,9 @@ function App() {
                   controls
                   playsInline
                   preload="metadata"
-                  poster="https://img.youtube.com/vi/Y_CDqJVr7Tk/hqdefault.jpg"
+                  onLoadedMetadata={handleLoadedMetadata}
+                  onPlay={() => setVideoStarted(true)}
+                  onPause={() => setVideoStarted(false)}
                 >
                   <source src="/media/videos/THING THAT I WISH I WAS TOLD [Y_CDqJVr7Tk].mp4" type="video/mp4" />
                   Your browser does not support the video tag.
@@ -108,26 +204,11 @@ function App() {
               </div>
             </div>
           </div>
-
-          {/* Intro Text */}
-          <div className="mt-16 max-w-4xl mx-auto text-center">
-            <div className="bg-white/60 backdrop-blur-sm p-8 rounded-2xl shadow-lg">
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                Feeling like your life is on pause after divorce? I know that feeling of being stuck, of a future that feels uncertain and a past that's too painful to revisit. But I also know what it's like to find your way forward.
-              </p>
-              <p className="text-lg text-gray-700 leading-relaxed mb-6">
-                I'm Olga — and I guide women just like you through heartbreak, helping you rediscover your strength so you can build a life you're excited to wake up to.
-              </p>
-              <p className="text-lg text-gray-700 leading-relaxed">
-                Let's connect for a free 15-minute call. No pressure — just a conversation about where you are and how I can help you take your next step.
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Three Core Offers */}
-      <section className="py-20 bg-white/50 min-h-screen flex items-center">
+      <section id="offers" className="py-20 bg-white/50 min-h-screen flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-16">
             Your Path to Healing & Transformation
@@ -205,51 +286,51 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-16 min-h-screen flex items-center">
+      <footer id="contact" className="bg-[rgb(242,212,209)] text-[rgb(var(--color-black)/var(--tw-text-opacity))] py-16 min-h-[50vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 items-center">
-            <div className="text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start mb-4">
-                <img 
-                  src="https://images.pexels.com/photos/3182826/pexels-photo-3182826.jpeg?auto=compress&cs=tinysrgb&w=100"
-                  alt="Olga" 
-                  className="w-12 h-12 rounded-full mr-3"
-                />
-                <h3 className="text-2xl font-bold">Olga</h3>
-              </div>
-              <p className="text-gray-300">Healing & Divorce Coach</p>
+          {/* Top row: left name/subtitle, right nav + button */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            {/* Left: Name + subtitle */}
+            <div className="text-left">
+              <h3 className="text-xl font-bold">Olga Binyaminov</h3>
+              <p className="text-sm">Healing and Empowerment Coach</p>
             </div>
-            
-            <div className="text-center">
-              <p className="text-lg font-medium mb-4 text-rose-300">
-                "You don't have to navigate this alone. Let's walk this path together."
-              </p>
-            </div>
-            
-            <div className="text-center md:text-right">
-              <div className="flex justify-center md:justify-end space-x-4 mb-4">
-                <a href="https://www.youtube.com/@unbreakable-you-official" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-rose-300 hover:text-rose-200 transition-colors">
-                  <Youtube className="w-6 h-6" />
-                </a>
-                <a href="https://www.linkedin.com/in/olga-binyaminov-5b163b6/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="text-rose-300 hover:text-rose-200 transition-colors">
-                  <Linkedin className="w-6 h-6" />
-                </a>
-                <a href="https://www.tiktok.com/@exceedlearningcenter?_t=ZP-8yQvgIEYenH&_r=1" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-rose-300 hover:text-rose-200 transition-colors">
-                  <Play className="w-6 h-6" />
-                </a>
-                <a href="https://www.facebook.com/olganyc21?mibextid=wwXIfr&rdid=pWD9E3z4WcP4hvZX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Ccp93Bk95%2F%3Fmibextid%3DwwXIfr#" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-rose-300 hover:text-rose-200 transition-colors">
-                  <Facebook className="w-6 h-6" />
-                </a>
-                <a href="https://www.instagram.com/unbreakable_you_official/?igsh=YmswZmJvamhyc3g0&utm_source=qr#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-rose-300 hover:text-rose-200 transition-colors">
-                  <Instagram className="w-6 h-6" />
-                </a>
-              </div>
-              <p className="text-gray-300">Connect & Follow</p>
+
+            {/* Right: nav links + button */}
+            <div className="flex items-center gap-6">
+              <nav className="hidden sm:flex items-center gap-6">
+                <a href="#hero" className="hover:opacity-70">About</a>
+                <a href="#offers" className="hover:opacity-70">Services</a>
+                <a href="#video" className="hover:opacity-70">Reviews</a>
+                <a href="#contact" className="hover:opacity-70">Credentials</a>
+              </nav>
+              <button onClick={() => openForm('discovery')} className="px-5 py-2 rounded-lg border border-[rgb(var(--color-black)/0.4)] hover:bg-black/5 transition-colors">
+                Book Now
+              </button>
             </div>
           </div>
-          
-          <div className="border-t border-gray-700 mt-12 pt-8 text-center">
-            <p className="text-gray-400">&copy; 2025 Olga Healing Coach. All rights reserved.</p>
+
+          {/* Social icons centered */}
+          <div className="mt-10 flex justify-center gap-6">
+            <a href="https://www.instagram.com/unbreakable_you_official/?igsh=YmswZmJvamhyc3g0&utm_source=qr#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="transition-opacity hover:opacity-70">
+              <Instagram className="w-6 h-6" />
+            </a>
+            <a href="https://www.facebook.com/olganyc21?mibextid=wwXIfr&rdid=pWD9E3z4WcP4hvZX&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Ccp93Bk95%2F%3Fmibextid%3DwwXIfr#" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="transition-opacity hover:opacity-70">
+              <Facebook className="w-6 h-6" />
+            </a>
+            <a href="https://www.tiktok.com/@exceedlearningcenter?_t=ZP-8yQvgIEYenH&_r=1" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="transition-opacity hover:opacity-70">
+              <Play className="w-6 h-6" />
+            </a>
+            <a href="https://www.linkedin.com/in/olga-binyaminov-5b163b6/?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="transition-opacity hover:opacity-70">
+              <Linkedin className="w-6 h-6" />
+            </a>
+            <a href="https://www.youtube.com/@unbreakable-you-official" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="transition-opacity hover:opacity-70">
+              <Youtube className="w-6 h-6" />
+            </a>
+          </div>
+
+          <div className="border-t border-black/20 mt-12 pt-8 text-center text-sm">
+            <p>&copy; 2025 Olga Healing Coach. All rights reserved.</p>
           </div>
         </div>
       </footer>
