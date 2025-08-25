@@ -1,16 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Heart, Star, Calendar, Download, Instagram, Facebook, CheckCircle, X, Play, Youtube, Linkedin, Menu } from 'lucide-react';
+import { Heart, Star, Calendar, Download, Instagram, Facebook, CheckCircle, X, Play, Youtube, Linkedin, Menu, Copy } from 'lucide-react';
 
 function App() {
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentBooked, setPaymentBooked] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     experience: ''
   });
+
+  // Zelle payment details (update these)
+  const ZELLE_RECIPIENT_NAME = 'Your Name';
+  const ZELLE_RECIPIENT_EMAIL = 'your-zelle-email@example.com';
+  const COACHING_AMOUNT = 140;
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const videoWrapperRef = useRef<HTMLDivElement | null>(null);
@@ -60,14 +67,29 @@ function App() {
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setShowForm(false);
-    setShowConfirmation(true);
-    setFormData({ name: '', email: '', experience: '' });
+    if (formType === 'coaching') {
+      // Lead to payment step for coaching
+      setShowForm(false);
+      setShowPayment(true);
+      setPaymentBooked(false);
+    } else {
+      // Immediate confirmation for other flows
+      setShowForm(false);
+      setShowConfirmation(true);
+      setFormData({ name: '', email: '', experience: '' });
+    }
   };
 
   const openForm = (type: string) => {
     setFormType(type);
     setShowForm(true);
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // no toast system; silent success
+    } catch {}
   };
 
   return (
@@ -84,6 +106,7 @@ function App() {
           <nav className="hidden md:flex items-center gap-8 text-gray-700">
             <a href="#hero" className="hover:text-rose-500 transition-colors">Home</a>
             <a href="#video" className="hover:text-rose-500 transition-colors">Video</a>
+            <a href="#about" className="hover:text-rose-500 transition-colors">About</a>
             <a href="#offers" className="hover:text-rose-500 transition-colors">Programs</a>
             <a href="#contact" className="hover:text-rose-500 transition-colors">Contact</a>
             <button onClick={() => openForm('discovery')} className="ml-2 bg-rose-400 hover:bg-rose-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg">
@@ -103,6 +126,7 @@ function App() {
             <div className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3 text-gray-700">
               <a href="#hero" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Home</a>
               <a href="#video" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Video</a>
+              <a href="#about" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">About</a>
               <a href="#offers" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Programs</a>
               <a href="#contact" onClick={() => setNavOpen(false)} className="py-2 hover:text-rose-500">Contact</a>
               <button onClick={() => { setNavOpen(false); openForm('discovery'); }} className="mt-2 bg-rose-400 hover:bg-rose-500 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow">
@@ -285,6 +309,101 @@ function App() {
         </div>
       </section>
 
+      {/* About Me Section */}
+      <section
+        id="about"
+        className="lg:px-32 lg:pb-8 md:px-12 sm:px-0 py-28"
+        style={{ color: 'rgb(69, 74, 79)', backgroundColor: 'rgb(249, 240, 231)' }}
+      >
+        <div className="mx-auto lg:block">
+          {/* Image moved above the content and made bigger */}
+          <div className="w-full flex justify-center mb-10 px-4">
+            <img
+              src="https://cdn.filestackcontent.com/resize=fit:clip,width:1400/bYX9BuN6RGCxkswlQzqr"
+              alt="Olga Binyaminov practicing Mindset coaching and NLP (neuro-linguistic programming) in Albertson, NY"
+              className="w-full max-w-5xl md:max-w-4xl lg:max-w-3xl rounded-2xl object-cover transition-all duration-[1500ms]"
+              loading="lazy"
+            />
+          </div>
+          <div
+            className="p-10 transition-all duration-[1500ms] md:px-5 mx-auto max-w-4xl"
+            style={{ backgroundColor: 'rgb(250, 249, 249)' }}
+          >
+            <h2
+              className="text-[40px] leading-[48px] lg:text-[27px] lg:leading-loose md:text-center"
+              style={{ fontFamily: '"Playfair Display", serif', fontWeight: 700 }}
+            >
+              About me
+            </h2>
+            <div className="mt-10 space-y-4 leading-relaxed">
+              <p>
+                Hi, I’m Olga, founder of <em>Unbreakable You</em>. For over 20 years, I’ve been an educator,
+                mentor, and coach, guiding people of all ages to discover their inner strength and reach their
+                full potential.
+              </p>
+              <p>
+                My path into healing work became deeply personal during a challenging life transition—navigating the pain of divorce and rebuilding my life from the ground up. I took the mess of that season and turned it into a message: <strong>you are stronger than you know, and your healing is possible.</strong>
+              </p>
+              <p>Drawing from my background as a college professor, business owner, and coach, I use a unique blend of:</p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>
+                  <strong>Mindset coaching &amp; NLP (neuro-linguistic programming)</strong>
+                </li>
+                <li>
+                  <strong>Guided meditation, journaling, and visualization practices</strong>
+                </li>
+                <li>
+                  <strong>Personalized support and accountability</strong>
+                </li>
+              </ul>
+              <p>
+                I specialize in helping women move through heartbreak, life transitions, and self-doubt so they can create the lives they truly desire. My coaching style is warm, honest, and action-oriented—I’ll walk alongside you with compassion while giving you the tools and structure to move forward.
+              </p>
+              <p>
+                When I’m not working with clients, you can find me creating empowering content for my YouTube channel and podcast or spending time with my son, who inspires me every day.
+              </p>
+              <p className="text-justify">
+                <strong>
+                  If you’re ready to release the pain of the past and rediscover your unbreakable self, I would love to support you.
+                </strong>
+              </p>
+            </div>
+            <button
+              onClick={() => openForm('discovery')}
+              className="mb-10 mt-6 w-fit rounded px-6 py-3 transition duration-150 ease-out sm:w-full bg-rose-400 hover:bg-rose-500 text-white shadow-md hover:shadow-lg"
+            >
+              Book Your Free Discovery Call
+            </button>
+            <div className="healme-widget" />
+            <div className="p-6 mt-6 rounded-xl" style={{ backgroundColor: 'rgb(255, 255, 255)' }}>
+              <div className="grid gap-4 grid-cols-2 lg:grid-cols-1">
+                <div className="flex items-start gap-2">
+                  {/* Inline icon SVG to match provided markup */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                    className="h-6 w-6 flex-none text-gray-700"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"
+                    />
+                  </svg>
+                  <div>
+                    <span className="border-b-2 border-dashed border-gray-300">Bachelor of Arts / Master of Arts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer id="contact" className="bg-[rgb(242,212,209)] text-[rgb(var(--color-black)/var(--tw-text-opacity))] py-16 min-h-[50vh] flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -354,10 +473,9 @@ function App() {
             
             <form onSubmit={handleFormSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name (optional)</label>
                 <input 
                   type="text" 
-                  required
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-transparent"
@@ -391,7 +509,7 @@ function App() {
               {formType === 'coaching' && (
                 <div className="bg-yellow-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-700">
-                    <strong>Payment:</strong> After submitting, you'll receive Zelle payment instructions for $140.
+                    <strong>Payment:</strong> After you submit, you'll be taken to a screen with Zelle payment instructions for ${COACHING_AMOUNT}.
                   </p>
                 </div>
               )}
@@ -402,9 +520,66 @@ function App() {
               >
                 {formType === 'discovery' && 'Book My Call'}
                 {formType === 'guide' && 'Download Guide'}
-                {formType === 'coaching' && 'Submit & Get Payment Info'}
+                {formType === 'coaching' && 'Continue to Payment'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal (Coaching via Zelle) */}
+      {showPayment && formType === 'coaching' && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+            <button 
+              onClick={() => setShowPayment(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Zelle Payment</h3>
+            <p className="text-gray-600 mb-4">Please send your payment to secure your session.</p>
+
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between bg-gray-50 border rounded-lg p-3">
+                <div>
+                  <p className="text-gray-500">Amount</p>
+                  <p className="font-semibold">${COACHING_AMOUNT}.00</p>
+                </div>
+              </div>
+              <div className="bg-gray-50 border rounded-lg p-3">
+                <p className="text-gray-500">Recipient Name</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold mr-3 truncate">{ZELLE_RECIPIENT_NAME}</p>
+                  <button onClick={() => copyToClipboard(ZELLE_RECIPIENT_NAME)} className="p-2 hover:bg-white rounded-md border">
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="bg-gray-50 border rounded-lg p-3">
+                <p className="text-gray-500">Zelle Email</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold mr-3 truncate">{ZELLE_RECIPIENT_EMAIL}</p>
+                  <button onClick={() => copyToClipboard(ZELLE_RECIPIENT_EMAIL)} className="p-2 hover:bg-white rounded-md border">
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-3 text-sm text-gray-600">
+              <p>1) Open your banking app and choose Zelle.</p>
+              <p>2) Send ${COACHING_AMOUNT} to the email above.</p>
+              <p>3) Return and confirm payment to finalize your booking.</p>
+            </div>
+
+            <button
+              onClick={() => { setShowPayment(false); setShowConfirmation(true); setPaymentBooked(true); setFormData({ name: '', email: '', experience: '' }); }}
+              className="mt-6 w-full bg-rose-500 hover:bg-rose-600 text-white py-3 px-6 rounded-lg font-medium transition-all"
+            >
+              I've paid via Zelle
+            </button>
           </div>
         </div>
       )}
@@ -414,7 +589,7 @@ function App() {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">Thank You!</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">{formType === 'coaching' && paymentBooked ? 'Booked!' : 'Thank You!'}</h3>
             <p className="text-gray-600 mb-6">
               Your request has been submitted successfully! 
               {formType === 'discovery' && (
@@ -438,9 +613,18 @@ function App() {
                 <>
                   <br /><br />
                   <strong>Next Steps:</strong>
-                  <br />• You'll receive Zelle payment instructions via email ($140)
-                  <br />• After payment confirmation, you'll get a calendar link to book your 40-minute Limitless Life Design™ session
-                  <br />• Prepare to transform your life!
+                  {paymentBooked ? (
+                    <>
+                      <br />• Your payment has been marked as sent.
+                      <br />• You'll receive a calendar link by email to book your 40-minute Limitless Life Design™ session.
+                      <br />• Prepare to transform your life!
+                    </>
+                  ) : (
+                    <>
+                      <br />• You'll receive Zelle payment instructions shortly ($${COACHING_AMOUNT})
+                      <br />• After payment, you'll get a calendar link to book your session
+                    </>
+                  )}
                 </>
               )}
             </p>
